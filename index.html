@@ -1,0 +1,1568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Intergalactic Gaming Club — GCC</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── Reset & Base ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cyan:    #00e5ff;
+      --magenta: #ff2eaa;
+      --purple:  #8b5cf6;
+      --gold:    #fbbf24;
+      --bg:      #050510;
+      --bg2:     #0a0a1a;
+      --bg3:     #0f0f2a;
+      --text:    #e2e8f0;
+      --muted:   #64748b;
+      --border:  rgba(139,92,246,0.25);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    h1, h2, h3, h4 { font-family: 'Orbitron', sans-serif; }
+
+    /* ─── Starfield Canvas ─── */
+    #starfield {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ─── Sections above canvas ─── */
+    nav, section, footer { position: relative; z-index: 1; }
+
+    /* ─── Nav ─── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      height: 64px;
+      background: rgba(5,5,16,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      font-size: 1.3rem;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 0.1em;
+      text-decoration: none;
+    }
+
+    .nav-logo span {
+      font-size: 0.7rem;
+      font-family: 'Share Tech Mono', monospace;
+      background: linear-gradient(135deg, var(--magenta), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display: block;
+      letter-spacing: 0.2em;
+      margin-top: -4px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.2s;
+      position: relative;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 1px;
+      background: var(--cyan);
+      transition: width 0.3s;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active { color: var(--cyan); }
+
+    .nav-links a:hover::after,
+    .nav-links a.active::after { width: 100%; }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px;
+      background: none;
+      border: none;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--cyan);
+      transition: all 0.3s;
+    }
+
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: 64px;
+      left: 0;
+      right: 0;
+      background: rgba(5,5,16,0.97);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+      z-index: 99;
+    }
+
+    .mobile-menu.open { display: block; }
+
+    .mobile-menu ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+
+    .mobile-menu a {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.9rem;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    .mobile-menu a:hover { color: var(--cyan); }
+
+    /* ─── Section base ─── */
+    section {
+      padding: 5rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      color: var(--magenta);
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-title {
+      font-size: clamp(1.6rem, 4vw, 2.5rem);
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--text) 0%, var(--purple) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 3rem;
+    }
+
+    /* ─── Hero ─── */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 6rem 2rem 4rem;
+      max-width: 100%;
+      gap: 0;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      color: var(--gold);
+      border: 1px solid rgba(251,191,36,0.4);
+      padding: 0.35rem 1rem;
+      border-radius: 999px;
+      margin-bottom: 1.5rem;
+      background: rgba(251,191,36,0.06);
+    }
+
+    .hero-title {
+      font-size: clamp(2.5rem, 9vw, 7rem);
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--cyan) 0%, var(--purple) 50%, var(--magenta) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmerText 4s ease-in-out infinite;
+      background-size: 200% 200%;
+      margin-bottom: 1rem;
+    }
+
+    @keyframes shimmerText {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .hero-sub {
+      font-size: clamp(1rem, 2.5vw, 1.4rem);
+      color: var(--muted);
+      font-weight: 300;
+      letter-spacing: 0.1em;
+      margin-bottom: 3rem;
+      max-width: 600px;
+    }
+
+    .hero-sub em {
+      color: var(--cyan);
+      font-style: normal;
+    }
+
+    .stats-bar {
+      display: flex;
+      gap: 0;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(10,10,26,0.7);
+      backdrop-filter: blur(8px);
+    }
+
+    .stat-item {
+      padding: 1.2rem 2.5rem;
+      text-align: center;
+      border-right: 1px solid var(--border);
+      flex: 1;
+    }
+
+    .stat-item:last-child { border-right: none; }
+
+    .stat-num {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      font-weight: 700;
+      color: var(--cyan);
+      display: block;
+    }
+
+    .stat-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-top: 0.2rem;
+    }
+
+    /* ─── Scroll Reveal ─── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ─── Achievement Wall ─── */
+    #achievements { max-width: 1100px; }
+
+    .filter-bar {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.5rem 1.2rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+
+    .filter-btn:hover,
+    .filter-btn.active {
+      border-color: var(--cyan);
+      color: var(--cyan);
+      background: rgba(0,229,255,0.08);
+      box-shadow: 0 0 12px rgba(0,229,255,0.2);
+    }
+
+    .achievements-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .ach-card {
+      background: rgba(10,10,26,0.8);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.3s, box-shadow 0.3s;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    .ach-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .ach-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    .ach-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+    }
+
+    .ach-card.rl::before {
+      background: linear-gradient(90deg, var(--cyan), var(--purple));
+    }
+
+    .ach-card.pokemon::before {
+      background: linear-gradient(90deg, var(--gold), var(--magenta));
+    }
+
+    .ach-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+
+    .ach-icon { font-size: 2rem; line-height: 1; }
+
+    .ach-category {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+    }
+
+    .cat-tournament { background: rgba(139,92,246,0.2); color: var(--purple); border: 1px solid rgba(139,92,246,0.4); }
+    .cat-rank       { background: rgba(0,229,255,0.1);  color: var(--cyan);   border: 1px solid rgba(0,229,255,0.3); }
+    .cat-challenge  { background: rgba(255,46,170,0.1); color: var(--magenta);border: 1px solid rgba(255,46,170,0.3); }
+    .cat-fun        { background: rgba(251,191,36,0.1); color: var(--gold);   border: 1px solid rgba(251,191,36,0.3); }
+
+    .ach-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+      color: var(--text);
+    }
+
+    .ach-desc {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+
+    .ach-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      padding-top: 0.75rem;
+      margin-top: auto;
+    }
+
+    .ach-member { color: var(--cyan); }
+
+    /* ─── Members ─── */
+    .members-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .member-card {
+      background: rgba(10,10,26,0.8);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.75rem 1.25rem;
+      text-align: center;
+      transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+      cursor: default;
+    }
+
+    .member-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(139,92,246,0.5);
+      box-shadow: 0 12px 40px rgba(139,92,246,0.15);
+    }
+
+    .member-avatar {
+      font-size: 3rem;
+      display: block;
+      margin-bottom: 0.75rem;
+    }
+
+    .member-tag {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.25rem;
+    }
+
+    .member-highlight {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 1rem;
+      min-height: 2.4em;
+    }
+
+    .game-tags {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .game-tag {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.1em;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+    }
+
+    .tag-rl      { background: rgba(0,229,255,0.1);   color: var(--cyan);    border: 1px solid rgba(0,229,255,0.3); }
+    .tag-pokemon { background: rgba(251,191,36,0.1);  color: var(--gold);    border: 1px solid rgba(251,191,36,0.3); }
+
+    .member-ranks {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .rank-row {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--muted);
+    }
+
+    .rank-val { color: var(--purple); }
+
+    /* ─── Challenges ─── */
+    #challenges { max-width: 1100px; }
+
+    .active-challenge {
+      background: rgba(10,10,26,0.9);
+      border: 1px solid rgba(0,229,255,0.3);
+      border-radius: 16px;
+      padding: 2rem;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 3rem;
+      box-shadow: 0 0 40px rgba(0,229,255,0.06), inset 0 0 60px rgba(0,229,255,0.02);
+    }
+
+    .shimmer-bar {
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 60%;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--cyan), var(--purple), transparent);
+      animation: shimmerBar 2.5s ease-in-out infinite;
+    }
+
+    @keyframes shimmerBar {
+      0%   { left: -60%; }
+      100% { left: 120%; }
+    }
+
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #00ff88;
+      border: 1px solid rgba(0,255,136,0.35);
+      background: rgba(0,255,136,0.08);
+      padding: 0.3rem 0.8rem;
+      border-radius: 999px;
+      margin-bottom: 1rem;
+    }
+
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      background: #00ff88;
+      border-radius: 50%;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.5; transform: scale(0.7); }
+    }
+
+    .challenge-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1.2rem, 3vw, 1.8rem);
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .challenge-desc {
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+      max-width: 600px;
+    }
+
+    .countdown {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .cd-unit {
+      text-align: center;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      min-width: 68px;
+    }
+
+    .cd-num {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--cyan);
+      display: block;
+      line-height: 1;
+    }
+
+    .cd-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-top: 0.3rem;
+    }
+
+    .past-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+
+    .past-card {
+      background: rgba(10,10,26,0.7);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+
+    .past-card-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.35rem;
+    }
+
+    .past-card-desc {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .past-result {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--gold);
+    }
+
+    /* ─── Rules ─── */
+    #rules { max-width: 800px; }
+
+    .accordion { display: flex; flex-direction: column; gap: 0.75rem; }
+
+    .accordion-item {
+      background: rgba(10,10,26,0.8);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+
+    .accordion-item.open { border-color: rgba(139,92,246,0.5); }
+
+    .accordion-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 1.5rem;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.2s;
+    }
+
+    .accordion-header:hover { background: rgba(139,92,246,0.05); }
+
+    .accordion-header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .accordion-icon { font-size: 1.2rem; }
+
+    .accordion-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .accordion-arrow {
+      color: var(--purple);
+      transition: transform 0.3s;
+      font-size: 0.9rem;
+    }
+
+    .accordion-item.open .accordion-arrow { transform: rotate(180deg); }
+
+    .accordion-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.45s ease;
+    }
+
+    .accordion-item.open .accordion-body { max-height: 600px; }
+
+    .accordion-content {
+      padding: 0 1.5rem 1.5rem;
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+
+    .accordion-content ul {
+      margin-top: 0.5rem;
+      padding-left: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .accordion-content li::marker { color: var(--cyan); }
+
+    /* ─── Footer ─── */
+    footer {
+      background: rgba(5,5,16,0.95);
+      border-top: 1px solid var(--border);
+      padding: 2.5rem 2rem;
+      text-align: center;
+    }
+
+    .footer-logo {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      font-size: 1.5rem;
+      background: linear-gradient(135deg, var(--cyan), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-location {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+      margin-bottom: 1.25rem;
+    }
+
+    .footer-locations {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 1.25rem;
+    }
+
+    .footer-loc-item {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      text-align: center;
+    }
+
+    .footer-loc-city {
+      color: var(--cyan);
+      display: block;
+    }
+
+    .footer-loc-country {
+      color: var(--muted);
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .social-link {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      border: 1px solid var(--border);
+      padding: 0.5rem 1.1rem;
+      border-radius: 999px;
+      transition: all 0.25s;
+    }
+
+    .social-link:hover {
+      color: var(--magenta);
+      border-color: rgba(255,46,170,0.5);
+      background: rgba(255,46,170,0.07);
+      box-shadow: 0 0 12px rgba(255,46,170,0.2);
+    }
+
+    .footer-copy {
+      margin-top: 1.5rem;
+      font-size: 0.75rem;
+      color: rgba(100,116,139,0.5);
+      font-family: 'Share Tech Mono', monospace;
+    }
+
+    /* ─── Divider ─── */
+    .section-divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* ─── Glow utility ─── */
+    .glow-cyan  { text-shadow: 0 0 20px rgba(0,229,255,0.5); }
+    .glow-purple{ text-shadow: 0 0 20px rgba(139,92,246,0.5); }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+
+      .stats-bar {
+        flex-direction: column;
+        width: 100%;
+        max-width: 300px;
+      }
+
+      .stat-item { border-right: none; border-bottom: 1px solid var(--border); }
+      .stat-item:last-child { border-bottom: none; }
+
+      .achievements-grid { grid-template-columns: 1fr; }
+      .members-grid { grid-template-columns: repeat(2, 1fr); }
+      .past-grid { grid-template-columns: 1fr; }
+
+      section { padding: 3.5rem 1.25rem; }
+    }
+
+    @media (max-width: 480px) {
+      .members-grid { grid-template-columns: 1fr; }
+      .countdown { gap: 0.5rem; }
+      .cd-unit { min-width: 56px; padding: 0.6rem 0.75rem; }
+      .cd-num { font-size: 1.4rem; }
+    }
+
+    /* ─── Past challenges sub-header ─── */
+    .sub-heading {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Starfield -->
+<canvas id="starfield"></canvas>
+
+<!-- ─── Navigation ─── -->
+<nav id="main-nav">
+  <a class="nav-logo" href="#hero">
+    IG
+    <span>INTERGALACTIC</span>
+  </a>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="#hero"         data-section="hero">Home</a></li>
+    <li><a href="#achievements" data-section="achievements">Achievements</a></li>
+    <li><a href="#members"      data-section="members">Members</a></li>
+    <li><a href="#challenges"   data-section="challenges">Challenges</a></li>
+    <li><a href="#rules"        data-section="rules">Rules</a></li>
+  </ul>
+  <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- Mobile menu -->
+<div class="mobile-menu" id="mobile-menu">
+  <ul>
+    <li><a href="#hero"         onclick="closeMobile()">Home</a></li>
+    <li><a href="#achievements" onclick="closeMobile()">Achievements</a></li>
+    <li><a href="#members"      onclick="closeMobile()">Members</a></li>
+    <li><a href="#challenges"   onclick="closeMobile()">Challenges</a></li>
+    <li><a href="#rules"        onclick="closeMobile()">Rules</a></li>
+  </ul>
+</div>
+
+<!-- ─── Hero ─── -->
+<section id="hero">
+  <div class="hero-badge">Est. 2024 — GCC Region</div>
+  <h1 class="hero-title">INTERGALACTIC</h1>
+  <p class="hero-sub">Where <em>champions</em> are made and <em>legends</em> are written — one game at a time.</p>
+  <div class="stats-bar" id="stats-bar">
+    <div class="stat-item">
+      <span class="stat-num" data-target="6" id="stat-members">0</span>
+      <div class="stat-label">Members</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num" data-target="10" id="stat-achievements">0</span>
+      <div class="stat-label">Achievements</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num" data-target="3" id="stat-challenges">0</span>
+      <div class="stat-label">Challenges</div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ─── Achievements ─── -->
+<section id="achievements" class="reveal">
+  <div class="section-label">// Hall of Fame</div>
+  <h2 class="section-title">Achievement Wall</h2>
+  <div class="filter-bar" id="filter-bar">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="rl">Rocket League</button>
+    <button class="filter-btn" data-filter="pokemon">Pokémon</button>
+  </div>
+  <div class="achievements-grid" id="achievements-grid"></div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ─── Members ─── -->
+<section id="members" class="reveal">
+  <div class="section-label">// The Crew</div>
+  <h2 class="section-title">Members</h2>
+  <div class="members-grid" id="members-grid"></div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ─── Challenges ─── -->
+<section id="challenges" class="reveal">
+  <div class="section-label">// Mission Control</div>
+  <h2 class="section-title">Challenges &amp; Events</h2>
+  <div id="active-challenge-container"></div>
+  <div class="sub-heading">Past Challenges</div>
+  <div class="past-grid" id="past-grid"></div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ─── Rules ─── -->
+<section id="rules" class="reveal">
+  <div class="section-label">// The Codex</div>
+  <h2 class="section-title">Rules &amp; About</h2>
+  <div class="accordion" id="accordion"></div>
+</section>
+
+<!-- ─── Footer ─── -->
+<footer>
+  <div class="footer-logo">INTERGALACTIC</div>
+  <div class="footer-location">📍 GCC Region</div>
+  <div class="footer-locations">
+    <div class="footer-loc-item">
+      <span class="footer-loc-city">Doha</span>
+      <span class="footer-loc-country">Qatar</span>
+    </div>
+    <div class="footer-loc-item" style="color:var(--muted);align-self:center;">·</div>
+    <div class="footer-loc-item">
+      <span class="footer-loc-city">Lusail</span>
+      <span class="footer-loc-country">Qatar</span>
+    </div>
+    <div class="footer-loc-item" style="color:var(--muted);align-self:center;">·</div>
+    <div class="footer-loc-item">
+      <span class="footer-loc-city">Manama</span>
+      <span class="footer-loc-country">Bahrain</span>
+    </div>
+    <div class="footer-loc-item" style="color:var(--muted);align-self:center;">·</div>
+    <div class="footer-loc-item">
+      <span class="footer-loc-city">Riyadh</span>
+      <span class="footer-loc-country">Saudi Arabia</span>
+    </div>
+  </div>
+  <div class="social-links">
+    <a href="#" class="social-link">Discord</a>
+    <a href="#" class="social-link">WhatsApp</a>
+    <a href="#" class="social-link">Instagram</a>
+  </div>
+  <div class="footer-copy">© 2024 Intergalactic Gaming Club. All rights reserved.</div>
+</footer>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   DATA — flat structure mirrors a Google Sheets layout.
+   TODO: Replace this object with a fetch() to your published
+         Google Sheet JSON endpoint, e.g.:
+         const DATA = await fetch('https://sheets.googleapis.com/v4/spreadsheets/SHEET_ID/...')
+                             .then(r => r.json())
+                             .then(transformSheetData);
+   ═══════════════════════════════════════════════════════════════════ */
+const DATA = {
+
+  members: [
+    {
+      id: "nova",
+      gamertag: "NOVA_X",
+      avatar: "🚀",
+      games: ["rl", "pokemon"],
+      rl_rank: "Champion III",
+      pokemon_rank: "Master Ball",
+      highlight: "Season 1 RL MVP"
+    },
+    {
+      id: "viper",
+      gamertag: "VIP3R",
+      avatar: "🐍",
+      games: ["rl"],
+      rl_rank: "Diamond II",
+      pokemon_rank: "—",
+      highlight: "Aerial specialist"
+    },
+    {
+      id: "starfire",
+      gamertag: "STARFIRE",
+      avatar: "⭐",
+      games: ["rl", "pokemon"],
+      rl_rank: "Grand Champion I",
+      pokemon_rank: "Ultra Ball",
+      highlight: "Back-to-back challenge winner"
+    },
+    {
+      id: "phantom",
+      gamertag: "PHAN7OM",
+      avatar: "👻",
+      games: ["pokemon"],
+      rl_rank: "—",
+      pokemon_rank: "Master Ball",
+      highlight: "Undefeated in club tourneys"
+    },
+    {
+      id: "arc",
+      gamertag: "ARC_9",
+      avatar: "⚡",
+      games: ["rl", "pokemon"],
+      rl_rank: "Platinum I",
+      pokemon_rank: "Great Ball",
+      highlight: "Most improved player"
+    },
+    {
+      id: "orbit",
+      gamertag: "ORBIT",
+      avatar: "🪐",
+      games: ["rl"],
+      rl_rank: "Champion I",
+      pokemon_rank: "—",
+      highlight: "Clutch king — 3 OT winners"
+    }
+  ],
+
+  achievements: [
+    {
+      id: "a1",
+      game: "rl",
+      category: "tournament",
+      icon: "🏆",
+      title: "Season 1 Champions",
+      description: "Won the inaugural IG Rocket League round-robin tournament, going undefeated across 6 matches.",
+      member: "NOVA_X",
+      date: "Mar 2025"
+    },
+    {
+      id: "a2",
+      game: "rl",
+      category: "rank",
+      icon: "👑",
+      title: "Grand Champion Ascent",
+      description: "First IG member to hit Grand Champion rank in Ranked Doubles, peaking at GC I Div 3.",
+      member: "STARFIRE",
+      date: "Feb 2025"
+    },
+    {
+      id: "a3",
+      game: "pokemon",
+      category: "tournament",
+      icon: "🎖️",
+      title: "Pokémon League Champion",
+      description: "Defeated every club member consecutively in a single evening, claiming the first Pokémon crown.",
+      member: "PHAN7OM",
+      date: "Jan 2025"
+    },
+    {
+      id: "a4",
+      game: "rl",
+      category: "challenge",
+      icon: "🎯",
+      title: "Aerial Ace",
+      description: "Scored 5 aerial goals in a single IG challenge match — a record that still stands.",
+      member: "VIP3R",
+      date: "Feb 2025"
+    },
+    {
+      id: "a5",
+      game: "pokemon",
+      category: "rank",
+      icon: "🌟",
+      title: "Master Ball Elite",
+      description: "Reached Master Ball tier in Ranked Battles with a 78% win rate across 50 games.",
+      member: "PHAN7OM",
+      date: "Mar 2025"
+    },
+    {
+      id: "a6",
+      game: "rl",
+      category: "fun",
+      icon: "🎪",
+      title: "Rumble Royale Winner",
+      description: "Topped the IG Rumble mode tournament — the most chaotic game mode ever played.",
+      member: "ORBIT",
+      date: "Apr 2025"
+    },
+    {
+      id: "a7",
+      game: "pokemon",
+      category: "challenge",
+      icon: "⚔️",
+      title: "Speed Run King",
+      description: "Beat the IG 'Elite 4 Blitz' challenge in under 40 minutes on a fresh save file.",
+      member: "STARFIRE",
+      date: "Mar 2025"
+    },
+    {
+      id: "a8",
+      game: "rl",
+      category: "rank",
+      icon: "💎",
+      title: "Diamond Breakthrough",
+      description: "Climbed from Gold to Diamond in a single season — biggest rank jump in club history.",
+      member: "ARC_9",
+      date: "Apr 2025"
+    },
+    {
+      id: "a9",
+      game: "pokemon",
+      category: "fun",
+      icon: "🎲",
+      title: "Monotype Madness",
+      description: "Completed a full playthrough using only Water-type Pokémon — and won every battle.",
+      member: "ARC_9",
+      date: "Apr 2025"
+    },
+    {
+      id: "a10",
+      game: "rl",
+      category: "challenge",
+      icon: "🔥",
+      title: "OT Clutch Triple",
+      description: "Scored the winning goal in overtime three separate challenge matches in one month.",
+      member: "ORBIT",
+      date: "May 2025"
+    }
+  ],
+
+  challenges: [
+    {
+      id: "c1",
+      status: "active",
+      game: "rl",
+      title: "Grand Prix June",
+      description: "1v1 Rocket League series — best of 5, double elimination bracket. All ranks welcome. Top 3 earn Achievement Wall entries.",
+      endDate: "2025-07-15T23:59:59",
+      result: null
+    },
+    {
+      id: "c2",
+      status: "completed",
+      game: "pokemon",
+      title: "Pokémon Draft League",
+      description: "Each player drafted a 6-man team from a shared pool, then battled round-robin style.",
+      endDate: "2025-04-30T23:59:59",
+      result: "Winner: PHAN7OM (6-0 record)"
+    },
+    {
+      id: "c3",
+      status: "completed",
+      game: "rl",
+      title: "Aerial Challenge Cup",
+      description: "Scored the most aerial goals across 3 casual matches to claim the Aerial Ace title.",
+      endDate: "2025-03-15T23:59:59",
+      result: "Winner: VIP3R (5 aerials in 1 match)"
+    }
+  ],
+
+  rules: [
+    {
+      id: "r1",
+      icon: "🪐",
+      title: "About Intergalactic",
+      content: "Intergalactic (IG) is a casual-competitive gaming club founded in 2024, with chapters across the GCC — Doha and Lusail (Qatar), Manama (Bahrain), and Riyadh (Saudi Arabia). We bring together passionate players for Rocket League and Pokémon — our sessions blend friendly rivalry, skill growth, and a whole lot of fun. Whether you're hitting Grand Champion or just learning to aerial, there's a place for you here."
+    },
+    {
+      id: "r2",
+      icon: "⚖️",
+      title: "Code of Conduct",
+      content: null,
+      list: [
+        "Respect every member — zero tolerance for trash talk or toxicity.",
+        "Win gracefully, lose gracefully. GG is always mandatory.",
+        "No sandbagging — play at your true rank in ranked challenges.",
+        "Keep sessions on schedule. If you can't make it, give 24h notice.",
+        "What happens in the club, stays in the club. No clips without consent."
+      ]
+    },
+    {
+      id: "r3",
+      icon: "🏆",
+      title: "Challenge Rules",
+      content: null,
+      list: [
+        "Challenges are announced at the start of each month.",
+        "All members are eligible to participate unless otherwise stated.",
+        "Results must be submitted within 24 hours of completion.",
+        "Ties are broken by head-to-head record, then goal differential.",
+        "The club founder has final say in all disputes."
+      ]
+    },
+    {
+      id: "r4",
+      icon: "📅",
+      title: "Monthly Meetups",
+      content: "We meet in-person twice a month — first and third Saturday evenings. Each chapter (Doha, Lusail, Manama, Riyadh) hosts its own local session, with cross-chapter meetups happening quarterly. Location is shared via the WhatsApp group 48 hours in advance. Online sessions run every weekend through Discord."
+    },
+    {
+      id: "r5",
+      icon: "🚪",
+      title: "How to Join",
+      content: null,
+      list: [
+        "Get referred by an existing IG member.",
+        "Play a trial session (1 RL match + 1 Pokémon battle).",
+        "Get approved by a majority vote (simple majority).",
+        "Pay the one-time membership fee (covers the current season).",
+        "You're in — welcome to the galaxy."
+      ]
+    }
+  ]
+
+}; // end DATA
+
+
+/* ═══════════════════════════════════════════════════════════════
+   STARFIELD
+   ═══════════════════════════════════════════════════════════════ */
+(function () {
+  const canvas = document.getElementById('starfield');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    initStars();
+  }
+
+  function initStars() {
+    stars = [];
+    const count = Math.floor((canvas.width * canvas.height) / 6000);
+    for (let i = 0; i < count; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.5 + 0.2,
+        alpha: Math.random() * 0.7 + 0.1,
+        speed: Math.random() * 0.3 + 0.05,
+        pulse: Math.random() * Math.PI * 2
+      });
+    }
+  }
+
+  function draw(ts) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for (const s of stars) {
+      s.pulse += 0.008;
+      const a = s.alpha * (0.6 + 0.4 * Math.sin(s.pulse));
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${a})`;
+      ctx.fill();
+      s.y += s.speed;
+      if (s.y > canvas.height) {
+        s.y = 0;
+        s.x = Math.random() * canvas.width;
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+  requestAnimationFrame(draw);
+})();
+
+
+/* ═══════════════════════════════════════════════════════════════
+   HAMBURGER MENU
+   ═══════════════════════════════════════════════════════════════ */
+const hamburger   = document.getElementById('hamburger');
+const mobileMenu  = document.getElementById('mobile-menu');
+
+hamburger.addEventListener('click', () => {
+  hamburger.classList.toggle('open');
+  mobileMenu.classList.toggle('open');
+});
+
+function closeMobile() {
+  hamburger.classList.remove('open');
+  mobileMenu.classList.remove('open');
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   NAV SCROLL SPY
+   ═══════════════════════════════════════════════════════════════ */
+const sections   = document.querySelectorAll('section[id]');
+const navAnchors = document.querySelectorAll('.nav-links a[data-section]');
+
+const spyObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navAnchors.forEach(a => {
+        a.classList.toggle('active', a.dataset.section === e.target.id);
+      });
+    }
+  });
+}, { threshold: 0.35 });
+
+sections.forEach(s => spyObserver.observe(s));
+
+
+/* ═══════════════════════════════════════════════════════════════
+   SCROLL REVEAL
+   ═══════════════════════════════════════════════════════════════ */
+const revealObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) e.target.classList.add('visible');
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+
+/* ═══════════════════════════════════════════════════════════════
+   ANIMATED STAT COUNTERS
+   ═══════════════════════════════════════════════════════════════ */
+function animateCounter(el, target, duration = 1200) {
+  const start = performance.now();
+  function step(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.round(eased * target);
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+let statsAnimated = false;
+const statsObs = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting && !statsAnimated) {
+    statsAnimated = true;
+    document.querySelectorAll('.stat-num[data-target]').forEach(el => {
+      animateCounter(el, parseInt(el.dataset.target));
+    });
+  }
+}, { threshold: 0.5 });
+
+statsObs.observe(document.getElementById('stats-bar'));
+
+
+/* ═══════════════════════════════════════════════════════════════
+   ACHIEVEMENTS RENDER & FILTER
+   ═══════════════════════════════════════════════════════════════ */
+function catClass(cat) {
+  return { tournament: 'cat-tournament', rank: 'cat-rank', challenge: 'cat-challenge', fun: 'cat-fun' }[cat] || '';
+}
+
+function renderAchievements(filter = 'all') {
+  const grid = document.getElementById('achievements-grid');
+  const items = filter === 'all'
+    ? DATA.achievements
+    : DATA.achievements.filter(a => a.game === filter);
+
+  grid.innerHTML = items.map((a, i) => `
+    <div class="ach-card ${a.game}" style="transition-delay:${i * 60}ms">
+      <div class="ach-top">
+        <span class="ach-icon">${a.icon}</span>
+        <span class="ach-category ${catClass(a.category)}">${a.category}</span>
+      </div>
+      <div class="ach-title">${a.title}</div>
+      <div class="ach-desc">${a.description}</div>
+      <div class="ach-footer">
+        <span class="ach-member">@${a.member}</span>
+        <span>${a.date}</span>
+      </div>
+    </div>
+  `).join('');
+
+  requestAnimationFrame(() => {
+    grid.querySelectorAll('.ach-card').forEach(card => {
+      setTimeout(() => card.classList.add('visible'), 10);
+    });
+  });
+}
+
+document.getElementById('filter-bar').addEventListener('click', e => {
+  const btn = e.target.closest('.filter-btn');
+  if (!btn) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAchievements(btn.dataset.filter);
+});
+
+renderAchievements();
+
+
+/* ═══════════════════════════════════════════════════════════════
+   MEMBERS RENDER
+   ═══════════════════════════════════════════════════════════════ */
+function renderMembers() {
+  const grid = document.getElementById('members-grid');
+  grid.innerHTML = DATA.members.map(m => `
+    <div class="member-card reveal">
+      <span class="member-avatar">${m.avatar}</span>
+      <div class="member-tag">${m.gamertag}</div>
+      <div class="member-highlight">${m.highlight}</div>
+      <div class="game-tags">
+        ${m.games.includes('rl')      ? '<span class="game-tag tag-rl">Rocket League</span>' : ''}
+        ${m.games.includes('pokemon') ? '<span class="game-tag tag-pokemon">Pokémon</span>'   : ''}
+      </div>
+      <div class="member-ranks">
+        ${m.games.includes('rl')      ? `<div class="rank-row"><span>RL Rank</span><span class="rank-val">${m.rl_rank}</span></div>` : ''}
+        ${m.games.includes('pokemon') ? `<div class="rank-row"><span>PKM Rank</span><span class="rank-val">${m.pokemon_rank}</span></div>` : ''}
+      </div>
+    </div>
+  `).join('');
+
+  grid.querySelectorAll('.member-card.reveal').forEach(el => revealObs.observe(el));
+}
+
+renderMembers();
+
+
+/* ═══════════════════════════════════════════════════════════════
+   CHALLENGES RENDER
+   ═══════════════════════════════════════════════════════════════ */
+function renderChallenges() {
+  const active = DATA.challenges.find(c => c.status === 'active');
+  const past   = DATA.challenges.filter(c => c.status === 'completed');
+
+  if (active) {
+    document.getElementById('active-challenge-container').innerHTML = `
+      <div class="active-challenge">
+        <div class="shimmer-bar"></div>
+        <div class="live-badge"><span class="live-dot"></span>Live</div>
+        <div class="challenge-title">${active.title}</div>
+        <div class="challenge-desc">${active.description}</div>
+        <div class="countdown" id="countdown"></div>
+      </div>
+    `;
+    startCountdown(active.endDate);
+  }
+
+  document.getElementById('past-grid').innerHTML = past.map(c => `
+    <div class="past-card">
+      <div class="past-card-title">${c.title}</div>
+      <div class="past-card-desc">${c.description}</div>
+      <div class="past-result">🏅 ${c.result}</div>
+    </div>
+  `).join('');
+}
+
+function startCountdown(endDateStr) {
+  const end = new Date(endDateStr).getTime();
+
+  function update() {
+    const now  = Date.now();
+    const diff = Math.max(0, end - now);
+    const d = Math.floor(diff / 86400000);
+    const h = Math.floor((diff % 86400000) / 3600000);
+    const m = Math.floor((diff % 3600000)  / 60000);
+    const s = Math.floor((diff % 60000)    / 1000);
+
+    const el = document.getElementById('countdown');
+    if (!el) return;
+    el.innerHTML = [
+      { n: d, l: 'Days' },
+      { n: h, l: 'Hours' },
+      { n: m, l: 'Mins' },
+      { n: s, l: 'Secs' }
+    ].map(u => `
+      <div class="cd-unit">
+        <span class="cd-num">${String(u.n).padStart(2,'0')}</span>
+        <div class="cd-label">${u.l}</div>
+      </div>
+    `).join('');
+  }
+
+  update();
+  setInterval(update, 1000);
+}
+
+renderChallenges();
+
+
+/* ═══════════════════════════════════════════════════════════════
+   RULES ACCORDION RENDER
+   ═══════════════════════════════════════════════════════════════ */
+function renderRules() {
+  const acc = document.getElementById('accordion');
+  acc.innerHTML = DATA.rules.map((r, i) => {
+    const bodyContent = r.list
+      ? `<ul>${r.list.map(li => `<li>${li}</li>`).join('')}</ul>`
+      : `<p>${r.content}</p>`;
+    return `
+      <div class="accordion-item ${i === 0 ? 'open' : ''}" data-idx="${i}">
+        <div class="accordion-header">
+          <div class="accordion-header-left">
+            <span class="accordion-icon">${r.icon}</span>
+            <span class="accordion-title">${r.title}</span>
+          </div>
+          <span class="accordion-arrow">▼</span>
+        </div>
+        <div class="accordion-body">
+          <div class="accordion-content">${bodyContent}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  acc.addEventListener('click', e => {
+    const item = e.target.closest('.accordion-item');
+    if (!item) return;
+    const wasOpen = item.classList.contains('open');
+    acc.querySelectorAll('.accordion-item').forEach(i => i.classList.remove('open'));
+    if (!wasOpen) item.classList.add('open');
+  });
+}
+
+renderRules();
+</script>
+</body>
+</html>
