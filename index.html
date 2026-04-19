@@ -919,7 +919,7 @@
 
 <!-- ─── Hero ─── -->
 <section id="hero">
-  <div class="hero-badge">Est. 2024 — GCC Region</div>
+  <div class="hero-badge">Est. 2021 — GCC Region</div>
   <h1 class="hero-title">INTERGALACTIC</h1>
   <p class="hero-sub">Where <em>champions</em> are made and <em>legends</em> are written — one game at a time.</p>
   <div class="stats-bar" id="stats-bar">
@@ -1016,71 +1016,63 @@
 
 <script>
 /* ═══════════════════════════════════════════════════════════════════
-   DATA — flat structure mirrors a Google Sheets layout.
-   TODO: Replace this object with a fetch() to your published
-         Google Sheet JSON endpoint, e.g.:
-         const DATA = await fetch('https://sheets.googleapis.com/v4/spreadsheets/SHEET_ID/...')
-                             .then(r => r.json())
-                             .then(transformSheetData);
+   GOOGLE SHEETS CONFIG
+   Members are fetched live from the published Google Sheet (CSV).
+   Achievements, Challenges, and Rules remain static below.
+   To add more live tabs, duplicate the fetch pattern in init().
+   Sheet ID: 1A22_h8TDW25qnObqzmQ7NYmmw-OBD2Od
    ═══════════════════════════════════════════════════════════════════ */
+const SHEET_ID = '1A22_h8TDW25qnObqzmQ7NYmmw-OBD2Od';
+const SHEET_TABS = {
+  members: '1258687173'
+};
+
+function csvUrl(gid) {
+  return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
+}
+
+/* Simple CSV parser — handles quoted fields containing commas */
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const headers = splitCSVRow(lines[0]);
+  return lines.slice(1).map(line => {
+    const vals = splitCSVRow(line);
+    return Object.fromEntries(headers.map((h, i) => [h.trim(), (vals[i] || '').trim()]));
+  });
+}
+
+function splitCSVRow(row) {
+  const result = [];
+  let cur = '', inQuote = false;
+  for (let i = 0; i < row.length; i++) {
+    const ch = row[i];
+    if (ch === '"') { inQuote = !inQuote; continue; }
+    if (ch === ',' && !inQuote) { result.push(cur); cur = ''; continue; }
+    cur += ch;
+  }
+  result.push(cur);
+  return result;
+}
+
+/* Transform a raw members CSV row → DATA member shape */
+function transformMember(row) {
+  const games = row.games
+    ? row.games.split(',').map(g => g.trim() === 'pk' ? 'pokemon' : g.trim()).filter(Boolean)
+    : [];
+  return {
+    id:           row.gamertag.toLowerCase().replace(/\s+/g, '-'),
+    gamertag:     row.gamertag,
+    avatar:       row.avatar || '🎮',
+    games,
+    rl_rank:      row.rocketLeagueRank || '—',
+    pokemon_rank: row.pokemonRank      || '—',
+    highlight:    row.highlightAchievement || ''
+  };
+}
+
 const DATA = {
 
-  members: [
-    {
-      id: "nova",
-      gamertag: "NOVA_X",
-      avatar: "🚀",
-      games: ["rl", "pokemon"],
-      rl_rank: "Champion III",
-      pokemon_rank: "Master Ball",
-      highlight: "Season 1 RL MVP"
-    },
-    {
-      id: "viper",
-      gamertag: "VIP3R",
-      avatar: "🐍",
-      games: ["rl"],
-      rl_rank: "Diamond II",
-      pokemon_rank: "—",
-      highlight: "Aerial specialist"
-    },
-    {
-      id: "starfire",
-      gamertag: "STARFIRE",
-      avatar: "⭐",
-      games: ["rl", "pokemon"],
-      rl_rank: "Grand Champion I",
-      pokemon_rank: "Ultra Ball",
-      highlight: "Back-to-back challenge winner"
-    },
-    {
-      id: "phantom",
-      gamertag: "PHAN7OM",
-      avatar: "👻",
-      games: ["pokemon"],
-      rl_rank: "—",
-      pokemon_rank: "Master Ball",
-      highlight: "Undefeated in club tourneys"
-    },
-    {
-      id: "arc",
-      gamertag: "ARC_9",
-      avatar: "⚡",
-      games: ["rl", "pokemon"],
-      rl_rank: "Platinum I",
-      pokemon_rank: "Great Ball",
-      highlight: "Most improved player"
-    },
-    {
-      id: "orbit",
-      gamertag: "ORBIT",
-      avatar: "🪐",
-      games: ["rl"],
-      rl_rank: "Champion I",
-      pokemon_rank: "—",
-      highlight: "Clutch king — 3 OT winners"
-    }
-  ],
+  members: [], /* populated by init() via Google Sheets fetch */
 
   achievements: [
     {
@@ -1444,9 +1436,6 @@ document.getElementById('filter-bar').addEventListener('click', e => {
   renderAchievements(btn.dataset.filter);
 });
 
-renderAchievements();
-
-
 /* ═══════════════════════════════════════════════════════════════
    MEMBERS RENDER
    ═══════════════════════════════════════════════════════════════ */
@@ -1470,8 +1459,6 @@ function renderMembers() {
 
   grid.querySelectorAll('.member-card.reveal').forEach(el => revealObs.observe(el));
 }
-
-renderMembers();
 
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1533,9 +1520,6 @@ function startCountdown(endDateStr) {
   setInterval(update, 1000);
 }
 
-renderChallenges();
-
-
 /* ═══════════════════════════════════════════════════════════════
    RULES ACCORDION RENDER
    ═══════════════════════════════════════════════════════════════ */
@@ -1570,7 +1554,31 @@ function renderRules() {
   });
 }
 
-renderRules();
+/* ═══════════════════════════════════════════════════════════════
+   INIT — fetch live data then render everything
+   ═══════════════════════════════════════════════════════════════ */
+async function init() {
+  /* Fetch members from Google Sheets */
+  try {
+    const res  = await fetch(csvUrl(SHEET_TABS.members));
+    const text = await res.text();
+    DATA.members = parseCSV(text).map(transformMember);
+
+    /* Update hero stat counter target to real member count */
+    const statEl = document.getElementById('stat-members');
+    if (statEl) statEl.dataset.target = DATA.members.length;
+  } catch (err) {
+    console.warn('Could not fetch members sheet — using empty list.', err);
+  }
+
+  /* Render all sections */
+  renderAchievements();
+  renderMembers();
+  renderChallenges();
+  renderRules();
+}
+
+init();
 </script>
 </body>
 </html>
